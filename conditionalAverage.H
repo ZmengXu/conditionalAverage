@@ -77,7 +77,7 @@ class conditionalAverage
             fieldGroup()
             :
                 DynamicList<word>(0),
-                formatter(NULL)
+                formatter(nullptr) // change for of1806, from formatter(NULL)
             {}
 
             //- Construct for a particular format
