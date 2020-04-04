@@ -78,11 +78,11 @@ void Foam::conditionalAverage::combineSampledValues
     PtrList<Field<T>>& averagedFields,
     PtrList<PtrList<Field<T>>>& masterFields
 )
-{				
+{			
 	forAll(conditionalFields_, conditionalFieldi)
 	{
 		word conditionalFieldName(conditionalFieldNames_[conditionalFieldi]);
-		
+
 		if
 		(
 			(conditionalFieldName == "x") ||
@@ -175,11 +175,11 @@ void Foam::conditionalAverage::combineSampledValues
 				}
 			}
 		}
-		
+
 		const volScalarField& conditionalField = conditionalFields_[conditionalFieldi];
-	
-		scalarList totalCounts_(nBins_,0);
-		scalarList localCellCounts(nBins_,0);
+
+		scalarList totalCounts_(nBins_,scalar(0.0));// Only for of6, need scalar(0)
+		scalarList localCellCounts(nBins_,scalar(0.0));// of4 and 7 can use, scalarList totalCounts_(nBins_,0);
 		List<Field<T>> localAveragedFields(averagedFields.size());
 		List<Field<T>> averagedFieldsOutput_(averagedFields.size());
 
@@ -254,7 +254,6 @@ void Foam::conditionalAverage::combineSampledValues
 				new Field<T>(averagedFieldsOutput_[averagedFieldi])
 			);
 		}
-
 	}
 }
 
