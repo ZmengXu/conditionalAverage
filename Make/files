@@ -1,0 +1,6 @@
+
+
+conditionalAverage.C
+conditionalAverageGrouping.C
+
+LIB = $(FOAM_USER_LIBBIN)/libconditionalAverage
