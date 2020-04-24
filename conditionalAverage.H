@@ -71,13 +71,13 @@ class conditionalAverage
         public:
 
             //- The set formatter
-            autoPtr<writer<Type>> formatter;
+            autoPtr<writer<Type> > formatter;
 
             //- Construct null
             fieldGroup()
             :
                 DynamicList<word>(0),
-                formatter(nullptr) // change for of1806, from formatter(NULL)
+                formatter(NULL) // change for of1806, from formatter(NULL)
             {}
 
             //- Construct for a particular format
@@ -172,15 +172,15 @@ class conditionalAverage
         template<class T>
         void combineSampledValues
         (
-            PtrList<Field<T>>& sampledFields,
-            PtrList<PtrList<Field<T>>>& masterFields
+            PtrList<Field<T> >& sampledFields,
+            PtrList<PtrList<Field<T> > >& masterFields
         );
 
         template<class Type>
         void writeSampleFile
         (
             const coordSet& masterSampleSet,
-            const PtrList<Field<Type>>& masterFields,
+            const PtrList<Field<Type> >& masterFields,
 			const wordList nameList,
             const fileName& timeDir,
             const writer<Type>& formatter

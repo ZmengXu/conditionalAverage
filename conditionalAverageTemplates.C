@@ -32,7 +32,7 @@ template<class Type>
 void Foam::conditionalAverage::writeSampleFile
 (
     const coordSet& masterSampleSet,
-    const PtrList<Field<Type>>& masterFields,
+    const PtrList<Field<Type> >& masterFields,
 	const wordList nameList,
     const fileName& timeDir,
     const writer<Type>& formatter
@@ -65,7 +65,7 @@ void Foam::conditionalAverage::writeSampleFile
     }
     else
     {
-        WarningInFunction
+        WarningIn("Foam::conditionalAverage::writeSampleFile")
             << "File " << ofs.name() << " could not be opened. "
             << "No data will be written" << endl;
     }
@@ -75,8 +75,8 @@ void Foam::conditionalAverage::writeSampleFile
 template<class T>
 void Foam::conditionalAverage::combineSampledValues
 (
-    PtrList<Field<T>>& averagedFields,
-    PtrList<PtrList<Field<T>>>& masterFields
+    PtrList<Field<T> >& averagedFields,
+    PtrList<PtrList<Field<T> > >& masterFields
 )
 {			
 	forAll(conditionalFields_, conditionalFieldi)
@@ -166,7 +166,7 @@ void Foam::conditionalAverage::combineSampledValues
 				}
 				else
 				{
-					FatalErrorInFunction
+					FatalErrorIn("Foam::conditionalAverage::combineSampledValues")
 						<< "Cannot find volScalarField "
 						<< conditionalFieldName
 						<< " for a conditionalField." << nl
@@ -180,13 +180,13 @@ void Foam::conditionalAverage::combineSampledValues
 
 		scalarList totalCounts_(nBins_,scalar(0.0));// Only for of6, need scalar(0)
 		scalarList localCellCounts(nBins_,scalar(0.0));// of4 and 7 can use, scalarList totalCounts_(nBins_,0);
-		List<Field<T>> localAveragedFields(averagedFields.size());
-		List<Field<T>> averagedFieldsOutput_(averagedFields.size());
+		List<Field<T> > localAveragedFields(averagedFields.size());
+		List<Field<T> > averagedFieldsOutput_(averagedFields.size());
 
 		masterFields.set
 		(
 			conditionalFieldi,
-			new PtrList<Field<T>>(averagedFields.size())
+			new PtrList<Field<T> >(averagedFields.size())
 		);
 
 		conditionalFieldOutputs_.set
@@ -275,7 +275,7 @@ void Foam::conditionalAverage::sampleAndWrite
         }
 
         // Storage for interpolated values
-        PtrList<Field<Type>> averagedFields(fields.size());
+        PtrList<Field<Type> > averagedFields(fields.size());
 
         forAll(fields, fieldi)
         {
@@ -315,7 +315,7 @@ void Foam::conditionalAverage::sampleAndWrite
 					new Field<Type>
 					(
 						mesh_.lookupObject
-						<GeometricField<Type, fvPatchField, volMesh>>
+						<GeometricField<Type, fvPatchField, volMesh> >
 						(fields[fieldi])
 					)
 				);
@@ -324,7 +324,7 @@ void Foam::conditionalAverage::sampleAndWrite
 
         // Combine sampled fields from processors.
         // Note: only master results are valid
-        PtrList<PtrList<Field<Type>>> masterFields(conditionalFieldNames_.size());
+        PtrList<PtrList<Field<Type> > > masterFields(conditionalFieldNames_.size());
 		combineSampledValues(averagedFields, masterFields);
 
         if (Pstream::master())

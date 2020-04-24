@@ -30,18 +30,9 @@ License
 
 namespace Foam
 {
-    defineTypeNameAndDebug(conditionalAverage, 0);
-
-    addToRunTimeSelectionTable
-    (
-        functionObject,
-        conditionalAverage,
-        dictionary
-    );
+defineTypeNameAndDebug(conditionalAverage, 0);
+bool conditionalAverage::verbose_ = false;
 }
-
-bool Foam::conditionalAverage::verbose_ = true;
-
 
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 

@@ -104,7 +104,7 @@ Foam::label Foam::conditionalAverage::classifyFields()
             }
             else
             {
-                WarningInFunction
+                WarningIn("Foam::label Foam::conditionalAverage::classifyFields()")
                     << "Cannot find field file matching "
                     << fieldSelection_[i] << endl;
             }
@@ -135,7 +135,7 @@ Foam::label Foam::conditionalAverage::classifyFields()
             }
             else
             {
-                WarningInFunction
+                WarningIn("Foam::label Foam::conditionalAverage::classifyFields()")
                     << "Cannot find registered field matching "
                     << fieldSelection_[i] << endl;
             }
