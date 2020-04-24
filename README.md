@@ -1,7 +1,7 @@
 # conditionalAverage
 OpenFOAM functionObject for postProcessing, getting the conditional averaged fields with a given scalarField
 
-It has been tested in OF4, OF6, OF7, OFv1712 and OFv1806
+It has been tested in OF230
 ```
 functions
 {
