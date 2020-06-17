@@ -1,0 +1,31 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  dev
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+FoamFile
+{
+    version         2.0;
+    format          ascii;
+    class           dictionary;
+    location        system;
+    object          conditionalAverage;
+}
+
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+enabled             true;
+
+type                conditionalAverage;
+
+libs                ("libconditionalAverage.so");
+
+writeFormat         raw;
+conditionalFields   (Z); // Must be volScalarField, can also be 'x','y','z','direction'.
+//directionVector   (1 1 1); // If conditionalFields contains 'direction', a directionVector will be needed
+nBins               20;
+// The number of sampled data, the conditionalFields are averaged devided into nBins, [min:(max-min)/nBins:max].
+averagedFields      ( U C7H16 OH meanChemistryHRR );
