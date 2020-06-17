@@ -203,7 +203,7 @@ void Foam::conditionalAverage::combineSampledValues
 		}
 		const scalar start = gMin(conditionalField);
 		const scalar end = gMax(conditionalField);
-		const scalar offset = (end - start)/(nBins_ - 1);
+		const scalar offset = (end - start)/nBins_;
 
 		forAll( conditionalField, trackCelli )
 		{
