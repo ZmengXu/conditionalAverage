@@ -1,3 +1,0 @@
-SOURCE = \
-conditionalAverage.C \
-conditionalAverageGrouping.C 
