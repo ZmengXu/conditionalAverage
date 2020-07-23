@@ -71,7 +71,10 @@ Foam::conditionalAverage::conditionalAverage
     dict_(dict),
     conditionalFieldNames_(dict.lookup("conditionalFields")),
     conditionalFields_(conditionalFieldNames_.size()),
+	weightedAveragedFieldName_(dict.lookup("weightedAveragedField")),
     nBins_(readLabel(dict.lookup("nBins"))),
+	maxF_(readScalar(dict.lookup("maxF"))),
+	minF_(readScalar(dict.lookup("minF"))),
 	conditionalFieldOutputs_(conditionalFieldNames_.size()),
 	fieldSelection_(dict.lookup("averagedFields")),
     writeFormat_(dict.lookup("writeFormat"))
@@ -114,7 +117,10 @@ Foam::conditionalAverage::conditionalAverage
     dict_(dict),
     conditionalFieldNames_(dict.lookup("conditionalFields")),
     conditionalFields_(conditionalFieldNames_.size()),
+	weightedAveragedFieldName_(dict.lookup("weightedAveragedField")),
     nBins_(readLabel(dict.lookup("nBins"))),
+	maxF_(readScalar(dict.lookup("maxF"))),
+	minF_(readScalar(dict.lookup("minF"))),
 	conditionalFieldOutputs_(conditionalFieldNames_.size()),
 	fieldSelection_(dict.lookup("averagedFields")),
     writeFormat_(dict.lookup("writeFormat"))

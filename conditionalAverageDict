@@ -25,6 +25,7 @@ libs                ("libconditionalAverage.so");
 
 writeFormat         raw;
 conditionalFields   (Z); // Must be volScalarField, can also be 'x','y','z','direction'.
+weightedAveragedField   meshV;//rhoMeshV;none;meshV
 //directionVector   (1 1 1); // If conditionalFields contains 'direction', a directionVector will be needed
 nBins               20;
 // The number of sampled data, the conditionalFields are averaged devided into nBins, [min:(max-min)/nBins:max].

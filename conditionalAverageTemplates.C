@@ -177,6 +177,30 @@ void Foam::conditionalAverage::combineSampledValues
 		}
 
 		const volScalarField& conditionalField = conditionalFields_[conditionalFieldi];
+		
+		scalarField weightedAveragedField_ = mesh_.V();
+		if(weightedAveragedFieldName_ == "meshV")
+		{
+			forAll(mesh_.C(),celli)
+			{
+				weightedAveragedField_[celli] =  mesh_.V()[celli];
+			}
+		}
+		else if (weightedAveragedFieldName_ == "rhoMeshV")
+		{
+			const volScalarField rho_ = mesh_.lookupObject<volScalarField>("rho");
+			forAll(mesh_.C(),celli)
+			{
+				weightedAveragedField_[celli] =  mesh_.V()[celli]*rho_[celli];
+			}
+		}
+		else if (weightedAveragedFieldName_ == "none")
+		{
+			forAll(mesh_.C(),celli)
+			{
+				weightedAveragedField_[celli] =  1.;
+			}			
+		}
 
 		scalarList totalCounts_(nBins_,scalar(0.0));// Only for of6, need scalar(0)
 		scalarList localCellCounts(nBins_,scalar(0.0));// of4 and 7 can use, scalarList totalCounts_(nBins_,0);
@@ -194,6 +218,7 @@ void Foam::conditionalAverage::combineSampledValues
 			conditionalFieldi,
 			new scalarList(nBins_)
 		);
+		
 		forAll(localAveragedFields, averagedFieldi)
 		{
 			localAveragedFields[averagedFieldi] = Field<T>(nBins_);
@@ -201,8 +226,8 @@ void Foam::conditionalAverage::combineSampledValues
 			localAveragedFields[averagedFieldi] = 0.0*localAveragedFields[averagedFieldi];
 			averagedFieldsOutput_[averagedFieldi] = 0.0*averagedFieldsOutput_[averagedFieldi];
 		}
-		const scalar start = gMin(conditionalField);
-		const scalar end = gMax(conditionalField);
+		const scalar start = max(minF_,gMin(conditionalField));
+		const scalar end = min(maxF_,gMax(conditionalField));
 		const scalar offset = (end - start)/(nBins_ - 1);
 
 		forAll( conditionalField, trackCelli )
@@ -220,7 +245,7 @@ void Foam::conditionalAverage::combineSampledValues
 					// New averaged value, avoied exceed value
 					localAveragedFields[averagedFieldi][iBin] =
 							localAveragedFields[averagedFieldi][iBin]*(localCellCounts[iBin]-1)/localCellCounts[iBin]
-							+ averagedFields[averagedFieldi][trackCelli]/localCellCounts[iBin];
+							+ weightedAveragedField_[trackCelli]*averagedFields[averagedFieldi][trackCelli]/localCellCounts[iBin];
 				}
 			}
 		}
