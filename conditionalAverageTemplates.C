@@ -202,8 +202,10 @@ void Foam::conditionalAverage::combineSampledValues
 			}			
 		}
 
-		scalarList totalCounts_(nBins_,scalar(0.0));// Only for of6, need scalar(0)
-		scalarList localCellCounts(nBins_,scalar(0.0));// of4 and 7 can use, scalarList totalCounts_(nBins_,0);
+		//scalarList totalCounts_(nBins_,scalar(0.0));// Only for of6, need scalar(0)
+		//scalarList localCellCounts(nBins_,scalar(0.0));// of4 and 7 can use, scalarList totalCounts_(nBins_,0);
+		scalarList localWeightedAveragedFields_(nBins_,scalar(0.0));
+		scalarList totalWeightedAveragedFields_(nBins_,scalar(0.0));
 		List<Field<T>> localAveragedFields(averagedFields.size());
 		List<Field<T>> averagedFieldsOutput_(averagedFields.size());
 
@@ -238,14 +240,28 @@ void Foam::conditionalAverage::combineSampledValues
 				label iBin = 0;
 				if(offset!=0) iBin = label((conditionalField[trackCelli] - start)/offset);
 				
-				localCellCounts[iBin] ++;
-				
+				//localCellCounts[iBin] ++;
+				localWeightedAveragedFields_[iBin] += weightedAveragedField_[trackCelli];
 				forAll( averagedFields, averagedFieldi )
 				{
 					// New averaged value, avoied exceed value
-					localAveragedFields[averagedFieldi][iBin] =
-							localAveragedFields[averagedFieldi][iBin]*(localCellCounts[iBin]-1)/localCellCounts[iBin]
-							+ weightedAveragedField_[trackCelli]*averagedFields[averagedFieldi][trackCelli]/localCellCounts[iBin];
+				//	localAveragedFields[averagedFieldi][iBin] =
+				//			localAveragedFields[averagedFieldi][iBin]*(localCellCounts[iBin]-1)/localCellCounts[iBin]
+				//			+ weightedAveragedField_[trackCelli]*averagedFields[averagedFieldi][trackCelli]/localCellCounts[iBin];
+					localAveragedFields[averagedFieldi][iBin] += weightedAveragedField_[trackCelli]*averagedFields[averagedFieldi][trackCelli];
+				}
+			}
+		}
+		
+		// for weightedAveragedField
+		forAll( averagedFields, averagedFieldi )
+		{
+			// New averaged value, avoied exceed value
+			forAll(localAveragedFields[averagedFieldi], iBin)
+			{
+				if(localWeightedAveragedFields_[iBin] != 0)
+				{
+					localAveragedFields[averagedFieldi][iBin] /= localWeightedAveragedFields_[iBin];
 				}
 			}
 		}
@@ -254,14 +270,15 @@ void Foam::conditionalAverage::combineSampledValues
 		forAll( conditionalFieldOutputs_[conditionalFieldi], iBin )
 		{
 			conditionalFieldOutputs_[conditionalFieldi][iBin] = start + iBin*offset;
-			totalCounts_[iBin] = localCellCounts[iBin];
-			reduce( totalCounts_[iBin], sumOp<scalar>()); 
+			//totalCounts_[iBin] = localCellCounts[iBin];
+			totalWeightedAveragedFields_[iBin] = localWeightedAveragedFields_[iBin];
+			reduce( totalWeightedAveragedFields_[iBin], sumOp<scalar>()); 
 			//- if there is no data in this region, did not change averagedFieldsOutput_, use 0 instead
-			if(totalCounts_[iBin] > 0)
+			if(totalWeightedAveragedFields_[iBin] > 0)
 			{
 				forAll( averagedFields, averagedFieldi )
 				{
-					T totalAveraged = (localCellCounts[iBin]/totalCounts_[iBin])*localAveragedFields[averagedFieldi][iBin];
+					T totalAveraged = (localWeightedAveragedFields_[iBin]/totalWeightedAveragedFields_[iBin])*localAveragedFields[averagedFieldi][iBin];
 					reduce( totalAveraged, sumOp<T>()); 
 					averagedFieldsOutput_[averagedFieldi][iBin] = totalAveraged;
 				}
