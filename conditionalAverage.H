@@ -132,8 +132,16 @@ class conditionalAverage
 
 			PtrList<volScalarField> conditionalFields_;
 			
+			word weightedAveragedFieldName_;
+			
+			//volScalarField   weightedAveragedField_;
+			
 			//- Number of Bins
 			label nBins_;
+			//- max
+			scalar maxF_;
+			//- min
+			scalar minF_;
 			
 			//- The conditional field is cutted into nBins_ piece uniformly
 			//- From min to max
