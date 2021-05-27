@@ -29,6 +29,23 @@ License
 // * * * * * * * * * * * * * Private Member Functions  * * * * * * * * * * * //
 
 template<class Type>
+Foam::tmp<Foam::Field<Type>>
+Foam::conditionalAverage::filterField
+(
+    const Field<Type>& field
+) const
+{
+    if (isNull(cellIDs()))
+    {
+        return field;
+    }
+    else
+    {
+        return tmp<Field<Type>>(new Field<Type>(field, cellIDs()));
+    }
+}
+
+template<class Type>
 void Foam::conditionalAverage::writeSampleFile
 (
     const coordSet& masterSampleSet,
@@ -96,17 +113,17 @@ void Foam::conditionalAverage::combineSampledValues
 				IOobject
 				(
 					conditionalFieldName,
-					mesh_.time().timeName(),
-					mesh_,
+					fvMeshFunctionObject::mesh_.time().timeName(),
+					fvMeshFunctionObject::mesh_,
 					IOobject::NO_READ,
 					IOobject::NO_WRITE,
 					false
 				),
-				mesh_,
+				fvMeshFunctionObject::mesh_,
 				dimensionedScalar("direction", dimLength, 0)
 			);
 			
-			const volVectorField centres = mesh_.C();
+			const volVectorField centres = fvMeshFunctionObject::mesh_.C();
 			
 			if(conditionalFieldName == "x") tempconditionalField = centres.component(vector::X);
 			else if(conditionalFieldName == "y") tempconditionalField = centres.component(vector::Y);
@@ -123,7 +140,7 @@ void Foam::conditionalAverage::combineSampledValues
 			conditionalFields_.set
 			(
 				conditionalFieldi,
-				new volScalarField
+				filterField
 				(
 					tempconditionalField
 				)
@@ -133,34 +150,38 @@ void Foam::conditionalAverage::combineSampledValues
 		{
 			if (loadFromFiles_)
 			{
+                volScalarField tempconditionalField
+                (
+                    IOobject
+                    (
+                        conditionalFieldName,
+                        fvMeshFunctionObject::mesh_.time().timeName(),
+                        fvMeshFunctionObject::mesh_,
+                        IOobject::MUST_READ,
+                        IOobject::NO_WRITE,
+                        false
+                    ),
+                    fvMeshFunctionObject::mesh_
+                );
 				conditionalFields_.set
 				(
 					conditionalFieldi,
-					new volScalarField
-					(
-						IOobject
-						(
-							conditionalFieldName,
-							mesh_.time().timeName(),
-							mesh_,
-							IOobject::MUST_READ,
-							IOobject::NO_WRITE,
-							false
-						),
-						mesh_
-					)
+                    filterField
+                    (
+                        tempconditionalField
+                    )
 				);
 			}
 			else
 			{
-				if(mesh_.foundObject<volScalarField>(conditionalFieldName))
+				if(fvMeshFunctionObject::mesh_.foundObject<volScalarField>(conditionalFieldName))
 				{
 					conditionalFields_.set
 					(
 						conditionalFieldi,
-						new volScalarField
+						filterField
 						(
-							mesh_.lookupObject<volScalarField>(conditionalFieldName)
+							fvMeshFunctionObject::mesh_.lookupObject<volScalarField>(conditionalFieldName)
 						)
 					);
 				}
@@ -176,27 +197,27 @@ void Foam::conditionalAverage::combineSampledValues
 			}
 		}
 
-		const volScalarField& conditionalField = conditionalFields_[conditionalFieldi];
+		const scalarField& conditionalField = conditionalFields_[conditionalFieldi];
 		
-		scalarField weightedAveragedField_ = mesh_.V();
+		scalarField weightedAveragedField_ = fvMeshFunctionObject::mesh_.V();
 		if(weightedAveragedFieldName_ == "meshV")
 		{
-			forAll(mesh_.C(),celli)
+			forAll(fvMeshFunctionObject::mesh_.C(),celli)
 			{
-				weightedAveragedField_[celli] =  mesh_.V()[celli];
+				weightedAveragedField_[celli] =  fvMeshFunctionObject::mesh_.V()[celli];
 			}
 		}
 		else if (weightedAveragedFieldName_ == "rhoMeshV")
 		{
-			const volScalarField rho_ = mesh_.lookupObject<volScalarField>("rho");
-			forAll(mesh_.C(),celli)
+			const volScalarField rho_ = fvMeshFunctionObject::mesh_.lookupObject<volScalarField>("rho");
+			forAll(fvMeshFunctionObject::mesh_.C(),celli)
 			{
-				weightedAveragedField_[celli] =  mesh_.V()[celli]*rho_[celli];
+				weightedAveragedField_[celli] =  fvMeshFunctionObject::mesh_.V()[celli]*rho_[celli];
 			}
 		}
 		else if (weightedAveragedFieldName_ == "none")
 		{
-			forAll(mesh_.C(),celli)
+			forAll(fvMeshFunctionObject::mesh_.C(),celli)
 			{
 				weightedAveragedField_[celli] =  1.;
 			}			
@@ -341,19 +362,19 @@ void Foam::conditionalAverage::sampleAndWrite
                     IOobject
                     (
                         fields[fieldi],
-                        mesh_.time().timeName(),
-                        mesh_,
+                        fvMeshFunctionObject::mesh_.time().timeName(),
+                        fvMeshFunctionObject::mesh_,
                         IOobject::MUST_READ,
                         IOobject::NO_WRITE,
                         false
                     ),
-                    mesh_
+                    fvMeshFunctionObject::mesh_
                 );
 
 				averagedFields.set
 				(
 					fieldi,
-					new Field<Type>(vf)
+					filterField(vf)// use region to filter part of the volScalarField
 				);
             }
             else
@@ -361,9 +382,9 @@ void Foam::conditionalAverage::sampleAndWrite
 				averagedFields.set
 				(
 					fieldi,
-					new Field<Type>
+					filterField// use region to filter part of the volScalarField
 					(
-						mesh_.lookupObject
+						fvMeshFunctionObject::mesh_.lookupObject
 						<GeometricField<Type, fvPatchField, volMesh>>
 						(fields[fieldi])
 					)
@@ -384,7 +405,7 @@ void Foam::conditionalAverage::sampleAndWrite
 				(
 					conditionalFieldNames_[conditionalFieldi]+"_conditionalwith",
 					"distance",
-					List<point>(nBins_),
+					List<point>(conditionalFieldOutputs_[conditionalFieldi].size()),
 					conditionalFieldOutputs_[conditionalFieldi]
 				);
 
@@ -400,7 +421,7 @@ void Foam::conditionalAverage::sampleAndWrite
 					masterCoordSets,
 					masterFields[conditionalFieldi],
 					nameList,
-					outputPath_/mesh_.time().timeName(),
+					outputPath_/fvMeshFunctionObject::mesh_.time().timeName(),
 					fields.formatter()
 				);
 			}

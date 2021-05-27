@@ -37,6 +37,8 @@ SourceFiles
 #define conditionalAverage_H
 
 #include "functionObject.H"
+#include "fvMeshFunctionObject.H"
+#include "volRegion.H"
 #include "volFieldsFwd.H"
 #include "coordSet.H"
 #include "writer.H"
@@ -57,7 +59,8 @@ class fvMesh;
 
 class conditionalAverage
 :
-    public functionObject
+    public functionObjects::fvMeshFunctionObject,
+    public functionObjects::volRegion
 {
     
     // Private classes
@@ -110,9 +113,6 @@ class conditionalAverage
 
     // Private data
 
-        //- Const reference to fvMesh
-        const fvMesh& mesh_;
-
         //- Load fields from files (not from objectRegistry)
         bool loadFromFiles_;
 
@@ -130,7 +130,7 @@ class conditionalAverage
 			//- must give, and must be a volScalarField not vector
 			wordReList conditionalFieldNames_;
 
-			PtrList<volScalarField> conditionalFields_;
+			PtrList<scalarField> conditionalFields_;
 			
 			word weightedAveragedFieldName_;
 			
@@ -239,6 +239,10 @@ public:
         //- Set verbosity level
         void verbose(const bool verbosity = true);
 
+        //- Filter a field according to cellIds
+        template<class Type>
+        tmp<Field<Type>> filterField(const Field<Type>& field) const;
+        
         //- Read the conditionalAverage
         virtual bool read(const dictionary&);
 

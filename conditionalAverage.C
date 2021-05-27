@@ -55,8 +55,8 @@ Foam::conditionalAverage::conditionalAverage
     const dictionary& dict
 )
 :
-    functionObject(name),
-    mesh_
+    fvMeshFunctionObject(name, t, dict),
+    volRegion
     (
         refCast<const fvMesh>
         (
@@ -65,6 +65,8 @@ Foam::conditionalAverage::conditionalAverage
                 dict.lookupOrDefault("region", polyMesh::defaultRegion)
             )
         )
+        ,
+        dict
     ),
     loadFromFiles_(false),
     outputPath_(fileName::null),
@@ -81,15 +83,15 @@ Foam::conditionalAverage::conditionalAverage
 {
     if (Pstream::parRun())
     {
-        outputPath_ = mesh_.time().path()/".."/"postProcessing"/name;
+        outputPath_ = fvMeshFunctionObject::mesh_.time().path()/".."/"postProcessing"/name;
     }
     else
     {
-        outputPath_ = mesh_.time().path()/"postProcessing"/name;
+        outputPath_ = fvMeshFunctionObject::mesh_.time().path()/"postProcessing"/name;
     }
-    if (mesh_.name() != fvMesh::defaultRegion)
+    if (fvMeshFunctionObject::mesh_.name() != fvMesh::defaultRegion)
     {
-        outputPath_ = outputPath_/mesh_.name();
+        outputPath_ = outputPath_/fvMeshFunctionObject::mesh_.name();
     }
 
 	clearFieldGroups();
@@ -110,8 +112,8 @@ Foam::conditionalAverage::conditionalAverage
     const bool loadFromFiles
 )
 :
-    functionObject(name),
-    mesh_(refCast<const fvMesh>(obr)),
+    fvMeshFunctionObject(name, obr, dict),
+    volRegion(refCast<const fvMesh>(obr), dict ),
     loadFromFiles_(loadFromFiles),
     outputPath_(fileName::null),
     dict_(dict),
@@ -127,15 +129,15 @@ Foam::conditionalAverage::conditionalAverage
 {
     if (Pstream::parRun())
     {
-        outputPath_ = mesh_.time().path()/".."/"postProcessing"/name;
+        outputPath_ = fvMeshFunctionObject::mesh_.time().path()/".."/"postProcessing"/name;
     }
     else
     {
-        outputPath_ = mesh_.time().path()/"postProcessing"/name;
+        outputPath_ = fvMeshFunctionObject::mesh_.time().path()/"postProcessing"/name;
     }
-    if (mesh_.name() != fvMesh::defaultRegion)
+    if (fvMeshFunctionObject::mesh_.name() != fvMesh::defaultRegion)
     {
-        outputPath_ = outputPath_/mesh_.name();
+        outputPath_ = outputPath_/fvMeshFunctionObject::mesh_.name();
     }
 
 	clearFieldGroups();
@@ -176,7 +178,7 @@ bool Foam::conditionalAverage::write()
 	{
 		if (debug)
 		{
-			Pout<< "timeName = " << mesh_.time().timeName() << nl
+			Pout<< "timeName = " << fvMeshFunctionObject::mesh_.time().timeName() << nl
 				<< "scalarFields    " << scalarFields_ << nl
 				<< "vectorFields    " << vectorFields_ << nl
 				<< "sphTensorFields " << sphericalTensorFields_ << nl
@@ -189,11 +191,11 @@ bool Foam::conditionalAverage::write()
 			if (debug)
 			{
 				Pout<< "Creating directory "
-					<< outputPath_/mesh_.time().timeName()
+					<< outputPath_/fvMeshFunctionObject::mesh_.time().timeName()
 						<< nl << endl;
 			}
 
-			mkDir(outputPath_/mesh_.time().timeName());
+			mkDir(outputPath_/fvMeshFunctionObject::mesh_.time().timeName());
 		}
 	}
 

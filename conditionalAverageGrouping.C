@@ -82,7 +82,7 @@ Foam::label Foam::conditionalAverage::classifyFields()
     if (loadFromFiles_)
     {
         // Check files for a particular time
-        IOobjectList objects(mesh_, mesh_.time().timeName());
+        IOobjectList objects(fvMeshFunctionObject::mesh_, fvMeshFunctionObject::mesh_.time().timeName());
         wordList allFields = objects.sortedNames();
 
         forAll(fieldSelection_, i)
@@ -113,7 +113,7 @@ Foam::label Foam::conditionalAverage::classifyFields()
     else
     {
         // Check currently available fields
-        wordList allFields = mesh_.sortedNames();
+        wordList allFields = fvMeshFunctionObject::mesh_.sortedNames();
         labelList indices = findStrings(fieldSelection_, allFields);
 
         forAll(fieldSelection_, i)
@@ -129,7 +129,7 @@ Foam::label Foam::conditionalAverage::classifyFields()
                     nFields += appendFieldGroup
                     (
                         fieldName,
-                        mesh_.find(fieldName)()->type()
+                        fvMeshFunctionObject::mesh_.find(fieldName)()->type()
                     );
                 }
             }
