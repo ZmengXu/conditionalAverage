@@ -73,12 +73,12 @@ Foam::conditionalAverage::conditionalAverage
     dict_(dict),
     conditionalFieldNames_(dict.lookup("conditionalFields")),
     conditionalFields_(conditionalFieldNames_.size()),
-	weightedAveragedFieldName_(dict.lookup("weightedAveragedField")),
+    weightedAveragedFieldName_(dict.lookup("weightedAveragedField")),
     nBins_(readLabel(dict.lookup("nBins"))),
-	maxF_(dict.lookupOrDefault<scalar>("maxValue", 0.0)),
-	minF_(dict.lookupOrDefault<scalar>("minValue", 0.0)),
-	conditionalFieldOutputs_(conditionalFieldNames_.size()),
-	fieldSelection_(dict.lookup("averagedFields")),
+    maxF_(dict.lookupOrDefault<scalar>("maxValue", 0.0)),
+    minF_(dict.lookupOrDefault<scalar>("minValue", 0.0)),
+    conditionalFieldOutputs_(conditionalFieldNames_.size()),
+    fieldSelection_(dict.lookup("averagedFields")),
     writeFormat_(dict.lookup("writeFormat"))
 {
     if (Pstream::parRun())
@@ -94,11 +94,11 @@ Foam::conditionalAverage::conditionalAverage
         outputPath_ = outputPath_/fvMeshFunctionObject::mesh_.name();
     }
 
-	clearFieldGroups();
+    clearFieldGroups();
 
     if (Pstream::master() && debug)
     {
-		Pout<< "conditionalFields are:" << conditionalFieldNames_ << endl;
+        Pout<< "conditionalFields are:" << conditionalFieldNames_ << endl;
         Pout<< "conditionalAverage fields:" << fieldSelection_ << endl;
     }
 }
@@ -119,12 +119,12 @@ Foam::conditionalAverage::conditionalAverage
     dict_(dict),
     conditionalFieldNames_(dict.lookup("conditionalFields")),
     conditionalFields_(conditionalFieldNames_.size()),
-	weightedAveragedFieldName_(dict.lookup("weightedAveragedField")),
+    weightedAveragedFieldName_(dict.lookup("weightedAveragedField")),
     nBins_(readLabel(dict.lookup("nBins"))),
-	maxF_(dict.lookupOrDefault<scalar>("maxValue", 0.0)),
-	minF_(dict.lookupOrDefault<scalar>("minValue", 0.0)),
-	conditionalFieldOutputs_(conditionalFieldNames_.size()),
-	fieldSelection_(dict.lookup("averagedFields")),
+    maxF_(dict.lookupOrDefault<scalar>("maxValue", 0.0)),
+    minF_(dict.lookupOrDefault<scalar>("minValue", 0.0)),
+    conditionalFieldOutputs_(conditionalFieldNames_.size()),
+    fieldSelection_(dict.lookup("averagedFields")),
     writeFormat_(dict.lookup("writeFormat"))
 {
     if (Pstream::parRun())
@@ -140,11 +140,11 @@ Foam::conditionalAverage::conditionalAverage
         outputPath_ = outputPath_/fvMeshFunctionObject::mesh_.name();
     }
 
-	clearFieldGroups();
+    clearFieldGroups();
 
     if (Pstream::master() && debug)
     {
-		Pout<< "conditionalFields are:" << conditionalFieldNames_ << endl;
+        Pout<< "conditionalFields are:" << conditionalFieldNames_ << endl;
         Pout<< "conditionalAverage fields:" << fieldSelection_ << endl;
     }
 }
@@ -172,41 +172,41 @@ bool Foam::conditionalAverage::execute()
 
 bool Foam::conditionalAverage::write()
 {
-	const label nFields = classifyFields();
+    const label nFields = classifyFields();
 
-	if (Pstream::master())
-	{
-		if (debug)
-		{
-			Pout<< "timeName = " << fvMeshFunctionObject::mesh_.time().timeName() << nl
-				<< "scalarFields    " << scalarFields_ << nl
-				<< "vectorFields    " << vectorFields_ << nl
-				<< "sphTensorFields " << sphericalTensorFields_ << nl
-				<< "symTensorFields " << symmTensorFields_ <<nl
-				<< "tensorFields    " << tensorFields_ <<nl;
-		}
+    if (Pstream::master())
+    {
+        if (debug)
+        {
+            Pout<< "timeName = " << fvMeshFunctionObject::mesh_.time().timeName() << nl
+                << "scalarFields    " << scalarFields_ << nl
+                << "vectorFields    " << vectorFields_ << nl
+                << "sphTensorFields " << sphericalTensorFields_ << nl
+                << "symTensorFields " << symmTensorFields_ <<nl
+                << "tensorFields    " << tensorFields_ <<nl;
+        }
 
-		if (nFields)
-		{
-			if (debug)
-			{
-				Pout<< "Creating directory "
-					<< outputPath_/fvMeshFunctionObject::mesh_.time().timeName()
-						<< nl << endl;
-			}
+        if (nFields)
+        {
+            if (debug)
+            {
+                Pout<< "Creating directory "
+                    << outputPath_/fvMeshFunctionObject::mesh_.time().timeName()
+                        << nl << endl;
+            }
 
-			mkDir(outputPath_/fvMeshFunctionObject::mesh_.time().timeName());
-		}
-	}
+            mkDir(outputPath_/fvMeshFunctionObject::mesh_.time().timeName());
+        }
+    }
 
-	if (nFields)
-	{
-		sampleAndWrite(scalarFields_);
-		sampleAndWrite(vectorFields_);
-		sampleAndWrite(sphericalTensorFields_);
-		sampleAndWrite(symmTensorFields_);
-		sampleAndWrite(tensorFields_);
-	}
+    if (nFields)
+    {
+        sampleAndWrite(scalarFields_);
+        sampleAndWrite(vectorFields_);
+        sampleAndWrite(sphericalTensorFields_);
+        sampleAndWrite(symmTensorFields_);
+        sampleAndWrite(tensorFields_);
+    }
 
     return true;
 }

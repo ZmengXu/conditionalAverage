@@ -126,28 +126,28 @@ class conditionalAverage
 
         // Read from dictonary
 
-			//- conditional field List
-			//- must give, and must be a volScalarField not vector
-			wordReList conditionalFieldNames_;
+            //- conditional field List
+            //- must give, and must be a volScalarField not vector
+            wordReList conditionalFieldNames_;
 
-			PtrList<scalarField> conditionalFields_;
-			
-			word weightedAveragedFieldName_;
-			
-			//volScalarField   weightedAveragedField_;
-			
-			//- Number of Bins
-			label nBins_;
-			//- max
-			scalar maxF_;
-			//- min
-			scalar minF_;
-			
-			//- The conditional field is cutted into nBins_ piece uniformly
-			//- From min to max
-			//- The conditionalFieldOutputs_ record the list of these pieces
-			PtrList<scalarList> conditionalFieldOutputs_;
-			
+            PtrList<scalarField> conditionalFields_;
+            
+            word weightedAveragedFieldName_;
+            
+            //volScalarField   weightedAveragedField_;
+            
+            //- Number of Bins
+            label nBins_;
+            //- max
+            scalar maxF_;
+            //- min
+            scalar minF_;
+            
+            //- The conditional field is cutted into nBins_ piece uniformly
+            //- From min to max
+            //- The conditionalFieldOutputs_ record the list of these pieces
+            PtrList<scalarList> conditionalFieldOutputs_;
+            
             //- Names of fields to sample
             wordReList fieldSelection_;
 
@@ -189,7 +189,7 @@ class conditionalAverage
         (
             const coordSet& masterSampleSet,
             const PtrList<Field<Type>>& masterFields,
-			const wordList nameList,
+            const wordList nameList,
             const fileName& timeDir,
             const writer<Type>& formatter
         );
