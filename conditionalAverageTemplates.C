@@ -218,18 +218,24 @@ void Foam::conditionalAverage::combineSampledValues
 		conditionalFieldOutputs_.set
 		(
 			conditionalFieldi,
-			new scalarList(nBins_)
+			new scalarList(0)//Init as size 0, append when there are some data in this bin
 		);
 		
 		forAll(localAveragedFields, averagedFieldi)
 		{
 			localAveragedFields[averagedFieldi] = Field<T>(nBins_);
-			averagedFieldsOutput_[averagedFieldi] = Field<T>(nBins_);
+			averagedFieldsOutput_[averagedFieldi] = Field<T>(0);//Init as size 0, append when there are some data in this bin
 			localAveragedFields[averagedFieldi] = 0.0*localAveragedFields[averagedFieldi];
 			averagedFieldsOutput_[averagedFieldi] = 0.0*averagedFieldsOutput_[averagedFieldi];
 		}
-		const scalar start = max(minF_,gMin(conditionalField));
-		const scalar end = min(maxF_,gMax(conditionalField));
+		scalar start = gMin(conditionalField);
+		scalar end = gMax(conditionalField);
+        //- This if will be skiped if minF_ and maxF_ are not given
+        if( maxF_ > minF_ )
+        {
+            start = max( minF_, start);
+            end   = min( maxF_, end  );
+        }
 		const scalar offset = (end - start)/(nBins_ - 1);
 
 		forAll( conditionalField, trackCelli )
@@ -244,7 +250,7 @@ void Foam::conditionalAverage::combineSampledValues
 				localWeightedAveragedFields_[iBin] += weightedAveragedField_[trackCelli];
 				forAll( averagedFields, averagedFieldi )
 				{
-					// New averaged value, avoied exceed value
+					// New averaged value, avoid exceed value
 				//	localAveragedFields[averagedFieldi][iBin] =
 				//			localAveragedFields[averagedFieldi][iBin]*(localCellCounts[iBin]-1)/localCellCounts[iBin]
 				//			+ weightedAveragedField_[trackCelli]*averagedFields[averagedFieldi][trackCelli]/localCellCounts[iBin];
@@ -256,7 +262,7 @@ void Foam::conditionalAverage::combineSampledValues
 		// for weightedAveragedField
 		forAll( averagedFields, averagedFieldi )
 		{
-			// New averaged value, avoied exceed value
+			// New averaged value, avoid exceed value
 			forAll(localAveragedFields[averagedFieldi], iBin)
 			{
 				if(localWeightedAveragedFields_[iBin] != 0)
@@ -267,20 +273,21 @@ void Foam::conditionalAverage::combineSampledValues
 		}
 	
 		//- Get the value from all of the processors
-		forAll( conditionalFieldOutputs_[conditionalFieldi], iBin )
+		//forAll( conditionalFieldOutputs_[conditionalFieldi], iBin )
+        for(label iBin = 0; iBin < nBins_; iBin++ )
 		{
-			conditionalFieldOutputs_[conditionalFieldi][iBin] = start + iBin*offset;
 			//totalCounts_[iBin] = localCellCounts[iBin];
 			totalWeightedAveragedFields_[iBin] = localWeightedAveragedFields_[iBin];
 			reduce( totalWeightedAveragedFields_[iBin], sumOp<scalar>()); 
-			//- if there is no data in this region, did not change averagedFieldsOutput_, use 0 instead
+			//- if there is no data in this region, did not append the value for conditionalFieldOutputs_ and averagedFieldsOutput_
 			if(totalWeightedAveragedFields_[iBin] > 0)
 			{
+                conditionalFieldOutputs_[conditionalFieldi].append(start + iBin*offset);
 				forAll( averagedFields, averagedFieldi )
 				{
 					T totalAveraged = (localWeightedAveragedFields_[iBin]/totalWeightedAveragedFields_[iBin])*localAveragedFields[averagedFieldi][iBin];
 					reduce( totalAveraged, sumOp<T>()); 
-					averagedFieldsOutput_[averagedFieldi][iBin] = totalAveraged;
+					averagedFieldsOutput_[averagedFieldi].append(totalAveraged);
 				}
 			}
 		}
