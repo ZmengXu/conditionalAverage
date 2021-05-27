@@ -384,7 +384,7 @@ void Foam::conditionalAverage::sampleAndWrite
 				(
 					conditionalFieldNames_[conditionalFieldi]+"_conditionalwith",
 					"distance",
-					List<point>(nBins_),
+					List<point>(conditionalFieldOutputs_[conditionalFieldi].size()),
 					conditionalFieldOutputs_[conditionalFieldi]
 				);
 
